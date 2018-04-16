@@ -10,6 +10,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by jingzhi.wu on 2018/3/22.
@@ -46,6 +48,20 @@ public class EchoClient {
 
         final String host = "127.0.0.1";
         final int port = 8080;
-        new EchoClient(host, port).start();
+        ExecutorService executorService = Executors.newFixedThreadPool(16);
+        for (int i = 0; i < 16; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new EchoClient(host, port).start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }
+        executorService.shutdown();
     }
 }
